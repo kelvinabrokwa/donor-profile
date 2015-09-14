@@ -1,8 +1,6 @@
-/* eslint-disable */
 var fs = require('fs');
 var path = require('path');
 var parse = require('csv-parse');
-var R = require('ramda');
 var extend = require('xtend');
 
 var dataCSV = fs.readFileSync(path.join(__dirname, 'data/data.csv'), { encoding: 'utf-8' });
@@ -13,7 +11,7 @@ parseData(dataCSV);
 function parseData(csv) {
   var data = [];
   var header = true;
-  var row;
+  var row, record, head;
 
   var dataCSVParser = parse();
 
@@ -43,7 +41,7 @@ function parseData(csv) {
 function parseCSVAverages(csv, data) {
   var averages = [];
   var header = true;
-  var row;
+  var record, head;
 
   var averageCSVParser = parse();
 
@@ -71,7 +69,8 @@ function parseCSVAverages(csv, data) {
 }
 
 function generateBubbleChartData(rawData, averageData) {
-  var allDonorBubbleData = {
+  console.log(JSON.stringify(rawData));
+  var averageBubbleData = {
     dac: {
       pgc1: {
         q21: +averageData[1]['Q21_PGC1'],
@@ -125,24 +124,52 @@ function generateBubbleChartData(rawData, averageData) {
     }
   };
 
-  console.log('var data =', JSON.stringify(flatten(allDonorBubbleData)));
-  //console.log(JSON.stringify(flatten(allDonorBubbleData)));
+  var allBubbleData = [];
+  var obj, name, type;
+  for (var i = 0; i < rawData.length; i++) {
+    name = rawData[i]['Name of Donor'];
+    if (rawData[i]['Multilateral'])
+      type = 'multi';
+    else if (rawData[i]['DAC Bilateral'])
+      type = 'dac';
+    else
+      type = 'nonDac';
+    obj = {};
+    obj[name] = {};
+    obj[name].pgc1 = {
+      type: type,
+      q14: +rawData[i]['Q14_PGC1'],
+      q21: +rawData[i]['Q21_PGC1'],
+      oda: Math.random() * 5
+    };
+    obj[name].pgc2 = {
+      type: type,
+      q14: +rawData[i]['Q14_PGC2'],
+      q21: +rawData[i]['Q21_PGC2'],
+      oda: Math.random() * 5
+    };
+    obj[name].pgc3 = {
+      type: type,
+      q14: +rawData[i]['Q14_PGC3'],
+      q21: +rawData[i]['Q21_PGC3'],
+      oda: Math.random() * 5
+    };
+    allBubbleData.push(flatten(averageBubbleData).concat(flatten(obj)));
+  }
+  console.log('var data =', JSON.stringify(allBubbleData[0]));
 }
 
-// flatten the structure of the data above into an array
-// containing data for the 9 bubbles
 function flatten(d) {
   var flattened = [];
   for (var key in d) {
     for (var sub in d[key]) {
       var bubble = {
-        group: key,
+        donor: key,
         type: sub
-      }
+      };
       bubble = extend(bubble, d[key][sub]);
       flattened.push(bubble);
     }
   }
   return flattened;
 }
-/* eslint-enable */
