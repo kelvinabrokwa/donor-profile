@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "csv-parse": "^1.0.0",
+    "phantomjs": "^1.9.18",
     "ramda": "^0.17.1",
     "vega": "file:vega",
     "xtend": "^4.0.0"

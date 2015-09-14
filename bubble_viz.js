@@ -1,5 +1,6 @@
 var fs = require('fs');
 var path = require('path');
+var exec = require('child_process').exec;
 var parse = require('csv-parse');
 var extend = require('xtend');
 
@@ -61,7 +62,8 @@ function parseCSVAverages(csv, data) {
   });
 
   averageCSVParser.on('finish', function() {
-    generateBubbleChartData(data, averages);
+    var bubbleData = generateBubbleChartData(data, averages);
+    writeChartsToDisk(bubbleData);
   });
 
   averageCSVParser.write(csv);
@@ -69,7 +71,6 @@ function parseCSVAverages(csv, data) {
 }
 
 function generateBubbleChartData(rawData, averageData) {
-  console.log(JSON.stringify(rawData));
   var averageBubbleData = {
     dac: {
       pgc1: {
@@ -156,7 +157,7 @@ function generateBubbleChartData(rawData, averageData) {
     };
     allBubbleData.push(flatten(averageBubbleData).concat(flatten(obj)));
   }
-  console.log('var data =', JSON.stringify(allBubbleData[0]));
+  return allBubbleData;
 }
 
 function flatten(d) {
@@ -172,4 +173,19 @@ function flatten(d) {
     }
   }
   return flattened;
+}
+
+function writeChartsToDisk(bubbleData) {
+  var cb = function(err, stdout) { if (!err) console.log(stdout); };
+  for (var i = 0; i < bubbleData.length; i++) {
+    fs.writeFileSync(
+      path.join(__dirname, 'bubble_data.js'),
+      'var data = ' + JSON.stringify(bubbleData[i]),
+      { encoding: 'utf-8' }
+    );
+    var donor = bubbleData[i].filter(function(d) {
+      return ['multi', 'dac', 'nonDac'].indexOf(d.donor) < 0;
+    })[0].donor;
+    exec('casperjs download_svg.js > graphics/bubble_chart_' + donor + '.svg', cb);
+  }
 }
