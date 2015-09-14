@@ -1,6 +1,6 @@
-/* eslint-disable */
 var fs = require('fs');
 var path = require('path');
+var exec = require('child_process').exec;
 var parse = require('csv-parse');
 var R = require('ramda');
 
@@ -12,9 +12,10 @@ var countryKeys, data;
 parseCountries(countryCSV);
 
 function parseCountries(csv) {
-  countryKeys = {}
+  countryKeys = {};
   var header = true;
   var countryCSVParser = parse();
+  var record;
 
   countryCSVParser.on('readable', function() {
     while (record = countryCSVParser.read()) {
@@ -38,14 +39,14 @@ function parseCountries(csv) {
 function parseData(csv) {
   data = [];
   var header = true;
-  var row;
+  var row, record, head;
 
   var dataCSVParser = parse();
 
   dataCSVParser.on('readable', function() {
     while (record = dataCSVParser.read()) {
       if (!header) {
-        row = {}
+        row = {};
         for (var i = 0; i < record.length; i++) {
           row[head[i]] = record[i];
         }
@@ -91,21 +92,31 @@ function generateBarChartData(rawData) {
     return donorData;
   });
 
-  generateVegaJSON(barData[0], 'countryName', 'q14');
+  for (var i = 0; i < barData.length; i++) {
+    for (var j = 0; j < 2; j++) {
+      var json = generateVegaJSON(barData[i], 'countryName', ['q14', 'q21'][j]);
+      fs.writeFileSync(
+        path.join(__dirname, 'bar_viz.json'),
+        JSON.stringify(json),
+        { encoding: 'utf-8' }
+      );
+      exec('./node_modules/vega/bin/vg2svg ' +
+          'bar_viz.json ' +
+          'graphics/bar_chart_' + ['q14', 'q21'][j] + '_' + barData[i].name + '.svg');
+    }
+  }
 }
 
-function generateVegaJSON(data) {
-  var NAME_FIELD = 'countryName';
-  var VALUE_FIELD = 'q14';
+function generateVegaJSON(donorData, NAME_FIELD, VALUE_FIELD) {
 
   var viz = {
     width: 500,
     height: 200,
-    padding: {top: 50, left: 80, bottom: 50, right: 80},
+    padding: { top: 50, left: 80, bottom: 50, right: 80 },
     data: [
       {
         name: 'table',
-        values: data.top5
+        values: donorData.top5
       }
     ],
     scales: [
@@ -126,7 +137,7 @@ function generateVegaJSON(data) {
     axes: [
       {
         type: 'y',
-        scale: 'name_scale',
+        scale: 'name_scale'
       },
       {
         type: 'x',
@@ -159,7 +170,7 @@ function generateVegaJSON(data) {
             }
           },
           update: {
-            fill: { value: 'steelblue' }
+            fill: { value: '#161f34' }
           },
           hover: {
             fill: { value: 'red' }
@@ -169,7 +180,5 @@ function generateVegaJSON(data) {
     ]
   };
 
-  console.log(JSON.stringify(viz));
+  return viz;
 }
-
-/* eslint-enable */

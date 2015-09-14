@@ -7,19 +7,12 @@
     .chart rect {
       fill: steelblue;
     }
-      .chart rect:hover {
-        fill: turquoise;
-      }
     .chart .rectM {
       stroke: green;
       stroke-width: 1;
       fill: green;
       fill-opacity: .2;
     }
-      .chart .rectM:hover {
-        fill: green;
-        fill-opacity: .5;
-      }
     .chart text {
       font: 10px sans-serif;
     }
@@ -43,8 +36,8 @@
     var width = 600;
     var margin = 50;
 
-    var labelX = 'ODA';
-    var labelY = 'Q14';
+    var labelX = 'Official Development Assistance (USD in Millions)';
+    var labelY = 'Level of Usefulness of Advice (1-5)';
 
     var svg = d3.select('.chart')
       .append('svg')
@@ -99,10 +92,10 @@
       .call(yAxis)
       .append('text')
         .attr('transform', 'rotate(-90)')
-        .attr('x', 20)
+        .attr('x', -height / 2)
         .attr('y', -margin)
         .attr('dy', '.71em')
-        .style('text-anchor', 'end')
+        .style('text-anchor', 'middle')
         .text(labelY);
 
     // x axis
@@ -111,10 +104,10 @@
       .attr('transform', 'translate(0,' + height + ')')
       .call(xAxis)
       .append('text')
-        .attr('x', width + 20)
+        .attr('x', width / 2)
         .attr('y', margin - 10)
         .attr('dy', '.71em')
-        .style('text-anchor', 'end')
+        .style('text-anchor', 'middle')
         .text(labelX);
 
     // circles
@@ -122,7 +115,7 @@
       .data(data)
       .enter()
       .insert('circle')
-      .attr('opacity', function(d) { return opacity(d.q21); })
+      .attr('opacity', 0.8)
       .attr('r', function(d) { return scale(d.q21) * 2; })
       .style('fill', function(d) {
         switch (d.donor) {
@@ -148,7 +141,7 @@
       .attr('cx', function(d) { return x(d.oda); })
       .attr('cy', function(d) { return y(d.q14); });
 
-    // labels
+    // bubble labels
     text
       .text(function(d) { return d.donor+ d.type; })
       .attr('x', function(d) { return x(d.oda); })
