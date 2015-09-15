@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "canvas": "^1.2.8",
+    "canvas": "^1.2.9",
     "csv-parse": "^1.0.0",
     "jsdom": "^3.1.2",
     "nchart": "^1.0.1",
