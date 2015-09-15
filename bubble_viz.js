@@ -1,8 +1,9 @@
 var fs = require('fs');
 var path = require('path');
-var exec = require('child_process').exec;
 var parse = require('csv-parse');
 var extend = require('xtend');
+var jsdom = require('jsdom');
+var xmlserializer = require('xmlserializer');
 
 var dataCSV = fs.readFileSync(path.join(__dirname, 'data/data.csv'), { encoding: 'utf-8' });
 var averageCSV = fs.readFileSync(path.join(__dirname, 'data/averages.csv'), { encoding: 'utf-8' });
@@ -136,24 +137,25 @@ function generateBubbleChartData(rawData, averageData) {
     else
       type = 'nonDac';
     obj = {};
-    obj[name] = {};
-    obj[name].pgc1 = {
-      type: type,
-      q14: +rawData[i]['Q14_PGC1'],
-      q21: +rawData[i]['Q21_PGC1'],
-      oda: Math.random() * 5
-    };
-    obj[name].pgc2 = {
-      type: type,
-      q14: +rawData[i]['Q14_PGC2'],
-      q21: +rawData[i]['Q21_PGC2'],
-      oda: Math.random() * 5
-    };
-    obj[name].pgc3 = {
-      type: type,
-      q14: +rawData[i]['Q14_PGC3'],
-      q21: +rawData[i]['Q21_PGC3'],
-      oda: Math.random() * 5
+    obj[name] = {
+      pgc1: {
+        type: type,
+        q14: +rawData[i]['Q14_PGC1'],
+        q21: +rawData[i]['Q21_PGC1'],
+        oda: Math.random() * 5
+      },
+      pgc2: {
+        type: type,
+        q14: +rawData[i]['Q14_PGC2'],
+        q21: +rawData[i]['Q21_PGC2'],
+        oda: Math.random() * 5
+      },
+      pgc3: {
+        type: type,
+        q14: +rawData[i]['Q14_PGC3'],
+        q21: +rawData[i]['Q21_PGC3'],
+        oda: Math.random() * 5
+      }
     };
     allBubbleData.push(flatten(averageBubbleData).concat(flatten(obj)));
   }
@@ -176,16 +178,29 @@ function flatten(d) {
 }
 
 function writeChartsToDisk(bubbleData) {
-  var cb = function(err, stdout) { if (!err) console.log(stdout); };
   for (var i = 0; i < bubbleData.length; i++) {
-    fs.writeFileSync(
-      path.join(__dirname, 'bubble_data.js'),
-      'var data = ' + JSON.stringify(bubbleData[i]),
-      { encoding: 'utf-8' }
-    );
+    //console.log(JSON.stringify(bubbleData[i]));
     var donor = bubbleData[i].filter(function(d) {
       return ['multi', 'dac', 'nonDac'].indexOf(d.donor) < 0;
     })[0].donor;
-    exec('casperjs download_svg.js > graphics/bubble_chart_' + donor + '.svg', cb);
+    var scripts = [
+      'http://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js',
+      path.join('file://', __dirname, 'd3bubbles.js')
+    ];
+    var htmlStub = '<!DOCTYPE html><div class="chart"></div>';
+    jsdom.env({
+      features: { QuerySelector: true },
+      html: htmlStub,
+      scripts: scripts,
+      done: function(err, window) {
+        if (err) throw err;
+        var svg = window.insertBubbles(bubbleData[i]);
+        fs.writeFileSync(
+          path.join(__dirname, 'graphics', 'bubble_chart_' + donor + '.svg'),
+          xmlserializer.serializeToString(svg),
+          { encoding: 'utf-8' }
+        );
+      }
+    });
   }
 }

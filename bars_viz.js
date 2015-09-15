@@ -96,12 +96,12 @@ function generateBarChartData(rawData) {
     for (var j = 0; j < 2; j++) {
       var json = generateVegaJSON(barData[i], 'countryName', ['q14', 'q21'][j]);
       fs.writeFileSync(
-        path.join(__dirname, 'bar_viz.json'),
+        path.join(__dirname, 'vega_jsons', 'bar_viz_' + i + j + '.json'),
         JSON.stringify(json),
-        { encoding: 'utf-8' }
+        { encoding: 'utf-8', flags: 'w' }
       );
       exec('./node_modules/vega/bin/vg2svg ' +
-          'bar_viz.json ' +
+          'vega_jsons/bar_viz_' + i + j + '.json ' +
           'graphics/bar_chart_' + ['q14', 'q21'][j] + '_' + barData[i].name + '.svg');
     }
   }
