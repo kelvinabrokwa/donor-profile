@@ -177,30 +177,28 @@ function flatten(d) {
   return flattened;
 }
 
-function writeChartsToDisk(bubbleData) {
-  for (var i = 0; i < bubbleData.length; i++) {
-    //console.log(JSON.stringify(bubbleData[i]));
-    var donor = bubbleData[i].filter(function(d) {
-      return ['multi', 'dac', 'nonDac'].indexOf(d.donor) < 0;
-    })[0].donor;
-    var scripts = [
-      'http://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js',
-      path.join('file://', __dirname, 'd3bubbles.js')
-    ];
-    var htmlStub = '<!DOCTYPE html><div class="chart"></div>';
-    jsdom.env({
-      features: { QuerySelector: true },
-      html: htmlStub,
-      scripts: scripts,
-      done: function(err, window) {
-        if (err) throw err;
-        var svg = window.insertBubbles(bubbleData[i]);
-        fs.writeFileSync(
-          path.join(__dirname, 'graphics', 'bubble_chart_' + donor + '.svg'),
-          xmlserializer.serializeToString(svg),
-          { encoding: 'utf-8' }
-        );
-      }
-    });
-  }
+function writeChartsToDisk(bubbleData, i) {
+  if (!i) i = 0;
+  var donor = bubbleData[i].filter(function(d) {
+    return ['multi', 'dac', 'nonDac'].indexOf(d.donor) < 0;
+  })[0].donor;
+  var scripts = [
+    'http://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js',
+    path.join('file://', __dirname, 'd3bubbles.js')
+  ];
+  jsdom.env({
+    features: { QuerySelector: true },
+    html: '<!DOCTYPE html><div class="chart"></div>',
+    scripts: scripts,
+    done: function(err, window) {
+      if (err) throw err;
+      var svg = window.insertBubbles(bubbleData[i]);
+      fs.writeFileSync(
+        path.join(__dirname, 'graphics', 'bubble_chart_' + donor + '.svg'),
+        xmlserializer.serializeToString(svg),
+        { encoding: 'utf-8' }
+      );
+      if (++i < bubbleData.length) writeChartsToDisk(bubbleData, i);
+    }
+  });
 }
