@@ -1,7 +1,7 @@
-var fs = require('fs');
+//var fs = require('fs');
 var path = require('path');
 var jsdom = require('jsdom');
-var xmlserializer = require('xmlserializer');
+//var xmlserializer = require('xmlserializer');
 
 writeChartsToDisk();
 
@@ -20,12 +20,15 @@ function writeChartsToDisk() {
     done: function(err, window) {
       if (err) throw err;
       window.insertRadar(null, function(svg) {
+        /*
         fs.writeFileSync(
           path.join(__dirname, 'a.svg'),
           xmlserializer.serializeToString(svg),
           { encoding: 'utf-8' }
         );
-        console.log(xmlserializer.serializeToString(svg));
+        */
+        //console.log(xmlserializer.serializeToString(svg));
+        console.log(svg);
       });
     }
   });
