@@ -32,10 +32,13 @@ function insertBubbles(data) { //eslint-disable-line no-unused-vars
     .range([0, width]);
 
   var y = d3.scale.linear()
+    /*
     .domain([
       d3.min(data, function(d) { return d.q14; }),
       d3.max(data, function(d) { return d.q14; })
     ])
+    */
+    .domain(d3.extent(data, function(d) { return d.q14; }))
     .range([height, 0]);
 
   var scale = d3.scale.linear()

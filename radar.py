@@ -75,4 +75,4 @@ for d in data:
         label="All Other"
     )
     radar.ax.legend()
-    pl.savefig('graphics/radar_chart_' + d['donor'] + '.png')
+    pl.savefig('graphics/radar_chart_' + d['donor'] + '.png', bbox_inches='tight')
