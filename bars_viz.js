@@ -1,8 +1,9 @@
 var fs = require('fs');
 var path = require('path');
-var exec = require('child_process').exec;
+var jsdom = require('jsdom');
 var parse = require('csv-parse');
 var R = require('ramda');
+var xmlserializer = require('xmlserializer');
 
 var dataCSV = fs.readFileSync(path.join(__dirname, 'data/data.csv'), { encoding: 'utf-8' });
 var countryCSV = fs.readFileSync(path.join(__dirname, 'data/country.csv'), { encoding: 'utf-8' });
@@ -91,94 +92,39 @@ function generateBarChartData(rawData) {
 
     return donorData;
   });
-
-  for (var i = 0; i < barData.length; i++) {
-    for (var j = 0; j < 2; j++) {
-      var json = generateVegaJSON(barData[i], 'countryName', ['q14', 'q21'][j]);
-      fs.writeFileSync(
-        path.join(__dirname, 'vega_jsons', 'bar_viz_' + i + j + '.json'),
-        JSON.stringify(json),
-        { encoding: 'utf-8', flags: 'w' }
-      );
-      exec('./node_modules/vega/bin/vg2svg ' +
-          'vega_jsons/bar_viz_' + i + j + '.json ' +
-          'graphics/bar_chart_' + ['q14', 'q21'][j] + '_' + barData[i].name + '.svg');
-    }
-  }
+  writeChartsToDisk(barData);
 }
 
-function generateVegaJSON(donorData, NAME_FIELD, VALUE_FIELD) {
-
-  var viz = {
-    width: 500,
-    height: 200,
-    padding: { top: 50, left: 80, bottom: 50, right: 80 },
-    data: [
-      {
-        name: 'table',
-        values: donorData.top5
+function writeChartsToDisk(barData, i) {
+  if (!i) i = 0;
+  var donorData = barData[i].top5.map(function(d) {
+    return {
+      group: d.countryName,
+      q14: d.q14 || 0,
+      q21: d.q21 || 0
+    };
+  });
+  var scripts = [
+    'http://d3js.org/d3.v3.min.js',
+    path.join('file://', __dirname, 'd3_bars.js')
+  ];
+  jsdom.env({
+    features: { QuerySelector: true },
+    html: '<!DOCTYPE html>',
+    scripts: scripts,
+    done: function(err, window) {
+      if (err) {
+        //throw err;
+        return;
       }
-    ],
-    scales: [
-      {
-        name: 'name_scale',
-        type: 'ordinal',
-        range: 'height',
-        domain: { data: 'table', field: NAME_FIELD }
-      },
-      {
-        name: 'q14_scale',
-        type: 'linear',
-        range: 'width',
-        domain: { data: 'table', field: VALUE_FIELD },
-        nice: true
-      }
-    ],
-    axes: [
-      {
-        type: 'y',
-        scale: 'name_scale'
-      },
-      {
-        type: 'x',
-        scale: 'q14_scale'
-      }
-    ],
-    marks: [
-      {
-        name: 'bars',
-        type: 'rect',
-        from: { data: 'table' },
-        properties: {
-          enter: {
-            y: {
-              scale: 'name_scale',
-              field: NAME_FIELD
-            },
-            height: {
-              scale: 'name_scale',
-              band: true,
-              offset: -1
-            },
-            x: {
-              scale: 'q14_scale',
-              field: VALUE_FIELD
-            },
-            x2: {
-              scale: 'q14_scale',
-              value: 0
-            }
-          },
-          update: {
-            fill: { value: '#161f34' }
-          },
-          hover: {
-            fill: { value: 'red' }
-          }
-        }
-      }
-    ]
-  };
-
-  return viz;
+      console.log(JSON.stringify(donorData, null, 2));
+      var svg = window.getChart(donorData);
+      fs.writeFileSync(
+        path.join(__dirname, 'graphics', 'bar_chart_' + barData[i].name + '.svg'),
+       xmlserializer.serializeToString(svg),
+       { encoding: 'utf-8' }
+      );
+      //if (++i < barData.length) writeChartsToDisk(barData, i);
+    }
+  });
 }
