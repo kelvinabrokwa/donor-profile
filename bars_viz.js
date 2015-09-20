@@ -114,17 +114,15 @@ function writeChartsToDisk(barData, i) {
     scripts: scripts,
     done: function(err, window) {
       if (err) {
-        //throw err;
         return;
       }
-      console.log(JSON.stringify(donorData, null, 2));
       var svg = window.getChart(donorData);
       fs.writeFileSync(
         path.join(__dirname, 'graphics', 'bar_chart_' + barData[i].name + '.svg'),
        xmlserializer.serializeToString(svg),
        { encoding: 'utf-8' }
       );
-      //if (++i < barData.length) writeChartsToDisk(barData, i);
+      if (++i < barData.length) writeChartsToDisk(barData, i);
     }
   });
 }
