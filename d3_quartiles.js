@@ -1,21 +1,6 @@
 /* global d3 */
 /* eslint-disable no-multi-spaces */
-function getChart() { // eslint-disable-line no-unused-vars
-  var data = [
-    { x: 0,   y: 0 },
-    { x: 150,  y: 0 },
-    { x: 300, y: 0 },
-    { x: 450, y: 0 },
-    { x: 0,   y: 80 },
-    { x: 150,  y: 80 },
-    { x: 300, y: 80 },
-    { x: 450, y: 80 },
-    { x: 0,   y: 160 },
-    { x: 150,  y: 160 },
-    { x: 300, y: 160 },
-    { x: 450, y: 160 }
-  ];
-
+function getChart(ranks) { // eslint-disable-line no-unused-vars
   var labelData = [
     'Agenda Setting Influence',
     'Helpfulness in Implementation',
@@ -23,33 +8,38 @@ function getChart() { // eslint-disable-line no-unused-vars
   ];
 
   var w = 800,
-      h = 300;
+      h = 350;
+
+  var qWidth = 120,
+      qMargin = 30;
+
+  var numberOfDonors = 62;
 
   var svg = d3.select('body').append('svg')
     .attr('width', w)
     .attr('height', h);
 
   var bars = svg.append('g')
-    .attr('transform', translation(120, 100));
+    .attr('transform', translation(120, 80));
 
   bars.selectAll('.bars')
-    .data(data)
+    .data([0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2])
     .enter()
     .append('rect')
-      .attr('x', function(d) { return d.x; })
-      .attr('y', function(d) { return d.y; })
-      .attr('width', 120)
+      .attr('x', function(d, i) { return (qWidth + qMargin) * (i % 4); })
+      .attr('y', function(d) { return d * 80 + 10; })
+      .attr('width', qWidth)
       .attr('height', 30)
       .attr('fill', '#000')
-      .attr('fill', function(d) {
-        switch (d.x) {
+      .attr('fill', function(d, i) {
+        switch (i % 4) {
           case 0:
             return '#92b5d8';
-          case 150:
+          case 1:
             return '#76b657';
-          case 300:
+          case 2:
             return '#FFDD75';
-          case 450:
+          case 3:
             return '#E31E1E';
         }
       });
@@ -66,7 +56,7 @@ function getChart() { // eslint-disable-line no-unused-vars
       .attr('y', function(d, i) { return i * 80; })
       .call(wrap, 100);
 
-  svg.append('g').attr('transform', translation(120, 80))
+  svg.append('g').attr('transform', translation(120, 70))
     .selectAll('.description')
     .data(['Best Performing', 'Median', 'Worst Performing'])
     .enter()
@@ -95,15 +85,38 @@ function getChart() { // eslint-disable-line no-unused-vars
       });
 
   // median markers
-  svg.append('g').selectAll('.marker')
+  svg.append('g').attr('transform', translation(120, 80)).selectAll('.marker')
     .data([0, 1, 2])
     .enter()
     .append('rect')
-      .attr('x', 400)
-      .attr('y', function(d) { return 90 + d * 80; })
+      .attr('x', 280)
+      .attr('y', function(d) { return  d * 80; })
       .attr('width', 10)
       .attr('height', 50)
       .attr('fill', '#000');
+
+  // rank markers
+  svg.append('g').attr('transform', translation(120, 80)).selectAll('.rankMarker')
+    .data(ranks.data)
+    .enter()
+    .append('rect')
+      .attr('x', function(d) { return (d / numberOfDonors) * ((qWidth * 4) + (qMargin * 3)); })
+      .attr('y', function(d, i) { return i * 80; })
+      .attr('width', 10)
+      .attr('height', 50)
+      .attr('fill', '#000');
+
+  // rank marker labels
+  svg.append('g').attr('transform', translation(120, 80)).selectAll('.rankMarkerLabel')
+    .data(ranks.data)
+    .enter()
+    .append('text')
+      .text(ranks.donor)
+      .attr('x', function(d) { return (d / numberOfDonors) * ((qWidth * 4) + (qMargin * 3)); })
+      .attr('y', function(d, i) { return i * 80 + 65; });
+
+  svg.selectAll('text')
+    .style('font-family', 'Helvetica');
 
   function translation(x, y) {
     return 'translate(' + x + ',' + y + ')';
@@ -120,7 +133,7 @@ function getChart() { // eslint-disable-line no-unused-vars
           lineNumber = 0,
           lineHeight = 1.1, // ems
           y = text.attr('y'),
-          dy = 0,//parseFloat(text.attr('dy')),
+          dy = 0,
           tspan = text.text(null).append('tspan').attr('x', 0).attr('y', y).attr('dy', dy + 'em');
       while (word = words.pop()) {
         line.push(word);
