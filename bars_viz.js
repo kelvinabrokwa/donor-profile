@@ -114,7 +114,7 @@ function writeChartsToDisk(barData, i) {
     scripts: scripts,
     done: function(err, window) {
       if (err) {
-        return;
+        return console.log('Error generating bar chart for:', barData[i].name);
       }
       var svg = window.getChart(donorData);
       fs.writeFileSync(

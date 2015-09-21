@@ -2,9 +2,9 @@
 function insertBubbles(data) { //eslint-disable-line no-unused-vars
   var el = window.document.querySelector('.chart');
 
-  var height = 400;
-  var width = 600;
-  var margin = 70;
+  var width = 280;
+  var height = 130;
+  var margin = 35;
 
   var labelX = 'Official Development Assistance (USD in Millions)';
   var labelY = 'Level of Usefulness of Advice (1-5)';
@@ -53,7 +53,7 @@ function insertBubbles(data) { //eslint-disable-line no-unused-vars
     .append('text')
       .attr('transform', 'rotate(-90)')
       .attr('x', -height / 2)
-      .attr('y', -margin + 15)
+      .attr('y', -margin + 1)
       .attr('dy', '.71em')
       .style('text-anchor', 'middle')
       .text(labelY);
@@ -68,18 +68,18 @@ function insertBubbles(data) { //eslint-disable-line no-unused-vars
     .call(xAxis)
     .append('text')
       .attr('x', width / 2)
-      .attr('y', margin - 30)
+      .attr('y', margin - 10)
       .attr('dy', '.71em')
       .style('text-anchor', 'middle')
       .text(labelX);
 
   // circles
-  svg.selectAll('circle')
+  svg.append('g').selectAll('circle')
     .data(data)
     .enter()
     .insert('circle')
     .attr('opacity', 0.8)
-    .attr('r', function(d) { return scale(d.q21) * 2; })
+    .attr('r', function(d) { return scale(d.q21) * 1.2; })
     .style('fill', function(d) {
       switch (d.donor) {
         case 'dac':
@@ -107,14 +107,17 @@ function insertBubbles(data) { //eslint-disable-line no-unused-vars
     .data(data)
     .enter()
     .append('text')
-      .text(function(d) { return d.donor; })
+      .text(function(d) { return d.donor.replace('_', ' '); })
       .attr('x', function(d) { return x(d.oda); })
       .attr('y', function(d) { return y(d.q14); })
       .style('text-anchor', 'middle');
 
   d3.selectAll('text')
     .style('fill', '#000')
-    .style('font-family', 'Helvetica');
+    .style('font-family', 'Helvetica')
+    .style('font-size', '8')
+    .style('font-weight', 'normal')
+    .style('stroke', 'none');
 
   return el.firstChild;
 }

@@ -5,7 +5,7 @@ function getChart(data) { // eslint-disable-line no-unused-vars
   var margin = {
     top: 20,
     right: 20,
-    bottom: 24,
+    bottom: 10,
     left: 20,
     middle: data.reduce(function(p, c) {
       if (c.group.length > p) p = c.group.length;
@@ -14,8 +14,8 @@ function getChart(data) { // eslint-disable-line no-unused-vars
   };
 
   // SET UP DIMENSIONS
-  var w = 700 + margin.middle,
-      h = 400;
+  var w = 410,//700 + margin.middle,
+      h = 245;//400;
 
   // the width of each side of the chart
   var regionWidth = w / 2 - margin.middle;
@@ -157,7 +157,8 @@ function getChart(data) { // eslint-disable-line no-unused-vars
 
   svg.selectAll('text')
     .style('fill', '#000')
-    .style('font-family', 'Helvetica');
+    .style('font-family', 'Helvetica')
+    .style('stroke', 'none');
 
   svg.selectAll('line')
     .style('stroke', '#B2B2B2');
