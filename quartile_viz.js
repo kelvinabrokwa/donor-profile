@@ -55,7 +55,7 @@ function generateChartData(csv) {
 
 function writeChartsToDisk(data, i) {
   if (!i) i = 0;
-    var scripts = [
+  var scripts = [
     'http://d3js.org/d3.v3.min.js',
     path.join('file://', __dirname, 'd3_quartiles.js')
   ];
@@ -67,11 +67,11 @@ function writeChartsToDisk(data, i) {
       if (err) {
         return;
       }
-      var svg = window.getChart(data);
+      var svg = window.getChart(data[i]);
       fs.writeFileSync(
-        path.join(__dirname, 'graphics', 'quartile_chart_' + data[i].name + '.svg'),
-       xmlserializer.serializeToString(svg),
-       { encoding: 'utf-8' }
+        path.join(__dirname, 'graphics', 'quartile_chart_' + data[i].donor + '.svg'),
+        xmlserializer.serializeToString(svg),
+        { encoding: 'utf-8' }
       );
       if (++i < data.length) writeChartsToDisk(data, i);
     }

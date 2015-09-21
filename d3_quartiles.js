@@ -54,7 +54,8 @@ function getChart(ranks) { // eslint-disable-line no-unused-vars
       .text(function(d) { return d; })
       .attr('x', 0)
       .attr('y', function(d, i) { return i * 80; })
-      .call(wrap, 100);
+      .call(wrap);
+
 
   svg.append('g').attr('transform', translation(120, 70))
     .selectAll('.description')
@@ -93,7 +94,7 @@ function getChart(ranks) { // eslint-disable-line no-unused-vars
       .attr('y', function(d) { return  d * 80; })
       .attr('width', 10)
       .attr('height', 50)
-      .attr('fill', '#000');
+      .attr('fill', '#A9A9A9');
 
   // rank markers
   svg.append('g').attr('transform', translation(120, 80)).selectAll('.rankMarker')
@@ -123,8 +124,8 @@ function getChart(ranks) { // eslint-disable-line no-unused-vars
   }
 
   // shout out to @mbostock, luh u boo
-  // http://bl.ocks.org/mbostock/7555321
-  function wrap(text, width) {
+  // remix of http://bl.ocks.org/mbostock/7555321 that will run in jsdom
+  function wrap(text) {
     text.each(function() {
       var text = d3.select(this), // eslint-disable-line no-shadow
           words = text.text().split(/\s+/).reverse(),
@@ -138,7 +139,7 @@ function getChart(ranks) { // eslint-disable-line no-unused-vars
       while (word = words.pop()) {
         line.push(word);
         tspan.text(line.join(' '));
-        if (tspan.node().getComputedTextLength() > width) {
+        if (line.join().length > 14) {
           line.pop();
           tspan.text(line.join(' '));
           line = [word];
@@ -147,5 +148,5 @@ function getChart(ranks) { // eslint-disable-line no-unused-vars
       }
     });
   }
-  return document.getElementsByTagName('svg');
+  return document.getElementsByTagName('svg')[0];
 }

@@ -74,5 +74,4 @@ for d in data:
         color="#76b657",
         label="All Other"
     )
-    radar.ax.legend()
     pl.savefig('graphics/radar_chart_' + d['donor'] + '.png', bbox_inches='tight')

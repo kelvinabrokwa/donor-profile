@@ -162,8 +162,7 @@ function getChart(data) { // eslint-disable-line no-unused-vars
   svg.selectAll('line')
     .style('stroke', '#B2B2B2');
 
-  svg.selectAll('.domain')
-    .style('visibility', 'hidden');
+  d3.selectAll('path').remove(); // remove axis line
 
   // so sick of string concatenation for translations
   function translation(x, y) {

@@ -119,8 +119,8 @@ function writeChartsToDisk(barData, i) {
       var svg = window.getChart(donorData);
       fs.writeFileSync(
         path.join(__dirname, 'graphics', 'bar_chart_' + barData[i].name + '.svg'),
-       xmlserializer.serializeToString(svg),
-       { encoding: 'utf-8' }
+        xmlserializer.serializeToString(svg),
+        { encoding: 'utf-8' }
       );
       if (++i < barData.length) writeChartsToDisk(barData, i);
     }

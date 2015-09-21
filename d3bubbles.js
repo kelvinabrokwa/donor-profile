@@ -19,11 +19,6 @@ function insertBubbles(data) { //eslint-disable-line no-unused-vars
     .style('font-size', '12px')
     .attr('transform', 'translate(' + margin + ',' + margin + ')');
 
-  var text = svg.selectAll('text')
-    .data(data)
-    .enter()
-    .append('text');
-
   var x = d3.scale.linear()
     .domain([
       d3.min(data, function(d) { return d.oda; }),
@@ -32,13 +27,10 @@ function insertBubbles(data) { //eslint-disable-line no-unused-vars
     .range([0, width]);
 
   var y = d3.scale.linear()
-    /*
     .domain([
       d3.min(data, function(d) { return d.q14; }),
       d3.max(data, function(d) { return d.q14; })
     ])
-    */
-    .domain(d3.extent(data, function(d) { return d.q14; }))
     .range([height, 0]);
 
   var scale = d3.scale.linear()
@@ -109,12 +101,20 @@ function insertBubbles(data) { //eslint-disable-line no-unused-vars
     .attr('cx', function(d) { return x(d.oda); })
     .attr('cy', function(d) { return y(d.q14); });
 
+
   // bubble labels
-  text
-    .text(function(d) { return d.donor; })
-    .attr('x', function(d) { return x(d.oda); })
-    .attr('y', function(d) { return y(d.q14); })
-    .style('text-anchor', 'middle');
+  svg.append('g').selectAll('.labels')
+    .data(data)
+    .enter()
+    .append('text')
+      .text(function(d) { return d.donor; })
+      .attr('x', function(d) { return x(d.oda); })
+      .attr('y', function(d) { return y(d.q14); })
+      .style('text-anchor', 'middle');
+
+  d3.selectAll('text')
+    .style('fill', '#000')
+    .style('font-family', 'Helvetica');
 
   return el.firstChild;
 }
