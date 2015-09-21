@@ -1,10 +1,10 @@
 /*  global d3 */
 function insertBubbles(data) { //eslint-disable-line no-unused-vars
-  var el = window.document.querySelector('.chart');
+  var PX_RATIO = 4 / 3;
 
-  var width = 280;
-  var height = 130;
-  var margin = 35;
+  var width = 280 * PX_RATIO;
+  var height = 130 * PX_RATIO;
+  var margin = 35 * PX_RATIO;
 
   var labelX = 'Official Development Assistance (USD in Millions)';
   var labelY = 'Level of Usefulness of Advice (1-5)';
@@ -107,7 +107,7 @@ function insertBubbles(data) { //eslint-disable-line no-unused-vars
     .data(data)
     .enter()
     .append('text')
-      .text(function(d) { return d.donor.replace('_', ' '); })
+      .text(function(d) { return d.donor.replace(/_/g, ' '); })
       .attr('x', function(d) { return x(d.oda); })
       .attr('y', function(d) { return y(d.q14); })
       .style('text-anchor', 'middle');
@@ -119,5 +119,5 @@ function insertBubbles(data) { //eslint-disable-line no-unused-vars
     .style('font-weight', 'normal')
     .style('stroke', 'none');
 
-  return el.firstChild;
+  return document.getElementsByTagName('svg')[0];
 }
