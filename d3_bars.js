@@ -1,21 +1,22 @@
 /* global d3 */
 function getChart(data) { // eslint-disable-line no-unused-vars
-
+  // convert from pixels to points for ReportLabs
+  var PX_RATIO = 4 / 3;
   // margin.middle is distance from center line to each y-axis
   var margin = {
-    top: 20,
-    right: 20,
-    bottom: 10,
-    left: 20,
+    top: 20 * PX_RATIO,
+    right: 20 * PX_RATIO,
+    bottom: 10 * PX_RATIO,
+    left: 20 * PX_RATIO,
     middle: data.reduce(function(p, c) {
       if (c.group.length > p) p = c.group.length;
       return p;
-    }, 0) * 5
+    }, 0) * 5 * PX_RATIO
   };
 
   // SET UP DIMENSIONS
-  var w = 410,//700 + margin.middle,
-      h = 245;//400;
+  var w = 410 * PX_RATIO,
+      h = 245 * PX_RATIO;
 
   // the width of each side of the chart
   var regionWidth = w / 2 - margin.middle;
