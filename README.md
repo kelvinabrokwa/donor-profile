@@ -8,8 +8,7 @@ git clone https://github.com/kelvinabrokwa/donor-profile.git
 cd donor-profile
 npm install
 pip install matplotlib numpy
-mkdir graphics vega-jsons
 ./run.sh
 ```
 
-Your `./graphics` directory should be filled with bar charts, bubble charts, and radar charts
+Your `./charts` directory should be filled with bar charts, bubble charts, radar charts, and quartile charts
